@@ -26,30 +26,21 @@ public class User implements UserDetails {
     private Long id;
 
     @NotBlank
-    private String nickname;
-
-    @NotBlank
     @Email
     @Column(unique = true)
     private String email;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
-
     @NotBlank
     private String password;
+
+    @NotBlank
+    @Column(unique = true)
+    private String nickname;
 
     private String profileImageUrl = "https://coursesapp.blob.core.windows.net/student-profile-image-container/BlankProfile.png";
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
-
-
-
-
-
-
 
 
     @Override
