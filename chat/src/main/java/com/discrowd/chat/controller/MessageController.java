@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/messages")
 @RequiredArgsConstructor
-@CrossOrigin("*")
 public class MessageController {
 
     private final MessageService messageService;

@@ -1,6 +1,6 @@
 package com.discrowd.server.repository;
 
-import com.discrowd.server.model.VoiceChannel;
+import com.discrowd.server.model.entity.VoiceChannel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

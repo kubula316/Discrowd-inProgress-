@@ -1,19 +1,24 @@
 package com.discrowd.server.service;
 
-import com.discrowd.server.model.Server;
-import com.discrowd.server.model.TextChannel;
-import com.discrowd.server.model.UserServerMembership;
-import com.discrowd.server.model.dto.response.UserServerResponse;
+import com.discrowd.server.model.dto.ChannelCategoryDto;
+import com.discrowd.server.model.dto.ServerDetailsResponse;
+import com.discrowd.server.model.dto.TextChannelDto;
+import com.discrowd.server.model.dto.VoiceChannelDto;
+import com.discrowd.server.model.entity.*;
+import com.discrowd.server.model.response.UserServerResponse;
+import com.discrowd.server.model.response.ServerResponse;
+import com.discrowd.server.model.response.UserServerMembershipResponse;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ServerService {
-    public Server createServer(String name, String description, Long ownerId);
-    public UserServerMembership joinServer(Long serverId, Long userId);
+    public ServerResponse createServer(String name, Long ownerId);
+    public UserServerMembershipResponse joinServer(Long serverId, Long userId);
     public void leaveServer(Long serverId, Long userId);
     public List<UserServerResponse> getUserServers(Long userId);
-    public Server getServerDetails(Long serverId, Long userId);
-    public TextChannel createTextChannel(Long serverId, String channelName, Long requestingUserId);
+    public ServerDetailsResponse getServerDetails(Long serverId, Long userId);
+    public TextChannelDto createTextChannel(Long serverId, String channelName, Long requestingUserId, Long categoryId);
+    public VoiceChannelDto createVoiceChannel(Long serverId, String channelName, Long requestingUserId, Long categoryId);
+    public ChannelCategoryDto createCategory(Long serverId, String categoryName, Long requestingUserId);
 
 }

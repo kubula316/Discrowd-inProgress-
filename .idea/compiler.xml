@@ -10,24 +10,16 @@
         <module name="eureka" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for server" enabled="true">
+      <profile name="Annotation profile for websocket" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="server" />
-      </profile>
-      <profile name="Annotation profile for chat" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
-        </processorPath>
         <module name="auth" />
+        <module name="websocket" />
         <module name="chat" />
       </profile>
     </annotationProcessing>
@@ -39,6 +31,7 @@
       <module name="eureka" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="server" options="-parameters" />
+      <module name="websocket" options="-parameters" />
     </option>
   </component>
 </project>

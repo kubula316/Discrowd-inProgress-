@@ -1,27 +1,36 @@
-package com.discrowd.server.model;
+package com.discrowd.server.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Entity
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "voice_channels")
-public class VoiceChannel {
+@Table(name = "user_server_memberships")
+public class UserServerMembership {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "server_id")
-    @JsonBackReference
     private Server server;
+
+    private String role;
+
+    private String nickname;
+
+    private String avatarUrl;
+
+
 
 }

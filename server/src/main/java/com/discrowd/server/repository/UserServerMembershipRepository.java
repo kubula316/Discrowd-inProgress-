@@ -1,6 +1,6 @@
 package com.discrowd.server.repository;
 
-import com.discrowd.server.model.UserServerMembership;
+import com.discrowd.server.model.entity.UserServerMembership;
 import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

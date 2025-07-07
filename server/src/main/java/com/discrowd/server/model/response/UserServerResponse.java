@@ -1,4 +1,4 @@
-package com.discrowd.server.model.dto.response;
+package com.discrowd.server.model.response;
 
 import lombok.Data;
 
