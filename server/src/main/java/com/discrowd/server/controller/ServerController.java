@@ -4,7 +4,6 @@ import com.discrowd.server.model.dto.ChannelCategoryDto;
 import com.discrowd.server.model.dto.ServerDetailsResponse;
 import com.discrowd.server.model.dto.TextChannelDto;
 import com.discrowd.server.model.dto.VoiceChannelDto;
-import com.discrowd.server.model.entity.TextChannel;
 import com.discrowd.server.model.request.CreateCategoryRequest;
 import com.discrowd.server.model.request.CreateTextChannelRequest;
 import com.discrowd.server.model.request.CreateVoiceChannelRequest;
@@ -37,7 +36,7 @@ public class ServerController {
 
     // Endpoint do dołączania do serwera
     @PostMapping("/join")
-    public ResponseEntity<UserServerMembershipResponse> joinServer(@RequestParam Long serverId, @RequestHeader("X-User-Id") Long userId) {
+    public ResponseEntity<UserServerMembershipResponse> joinServer(@RequestParam String serverId, @RequestHeader("X-User-Id") Long userId) {
         // Serwis zwraca już DTO
         UserServerMembershipResponse response = serverService.joinServer(serverId, userId);
         return ResponseEntity.ok(response);
@@ -45,7 +44,7 @@ public class ServerController {
 
     // Endpoint do opuszczania serwera
     @PostMapping("/leave")
-    public ResponseEntity<String> leaveServer(@RequestParam Long serverId, @RequestHeader("X-User-Id") Long userId) {
+    public ResponseEntity<String> leaveServer(@RequestParam String serverId, @RequestHeader("X-User-Id") Long userId) {
         serverService.leaveServer(serverId, userId);
         return ResponseEntity.ok("Successfully left server " + serverId);
     }
@@ -58,28 +57,28 @@ public class ServerController {
 
     // Endpoint do pobierania szczegółów serwera (bez zmian w zwracanym typie)
     @GetMapping("/details")
-    public ServerDetailsResponse getServerDetails(@RequestParam Long serverId, @RequestHeader("X-User-Id") Long userId) {
+    public ServerDetailsResponse getServerDetails(@RequestParam String serverId, @RequestHeader("X-User-Id") Long userId) {
         return serverService.getServerDetails(serverId, userId);
     }
 
     // Endpoint do tworzenia kanału tekstowego
     @PostMapping("/channels/text")
-    public ResponseEntity<TextChannelDto> createTextChannel(@RequestBody CreateTextChannelRequest request, @RequestHeader("X-User-Id") Long userId) {
-        TextChannelDto responseDto = serverService.createTextChannel(request.getServerId(), request.getChannelName(), userId, request.getCategoryId());
+    public ResponseEntity<ServerDetailsResponse> createTextChannel(@RequestBody CreateTextChannelRequest request, @RequestHeader("X-User-Id") Long userId) {
+        ServerDetailsResponse responseDto = serverService.createTextChannel(request.getServerId(), request.getChannelName(), userId, request.getCategoryId());
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     // Endpoint do tworzenia kanału głosowego
     @PostMapping("/channels/voice")
-    public ResponseEntity<VoiceChannelDto> createVoiceChannel(@RequestBody CreateVoiceChannelRequest request, @RequestHeader("X-User-Id") Long userId) {
-        VoiceChannelDto responseDto = serverService.createVoiceChannel(request.getServerId(), request.getChannelName(), userId, request.getCategoryId());
+    public ResponseEntity<ServerDetailsResponse> createVoiceChannel(@RequestBody CreateVoiceChannelRequest request, @RequestHeader("X-User-Id") Long userId) {
+        ServerDetailsResponse responseDto = serverService.createVoiceChannel(request.getServerId(), request.getChannelName(), userId, request.getCategoryId());
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     // Endpoint do tworzenia kategorii
     @PostMapping("/categories")
-    public ResponseEntity<ChannelCategoryDto> createCategory(@RequestBody CreateCategoryRequest request, @RequestHeader("X-User-Id") Long userId) {
-        ChannelCategoryDto responseDto = serverService.createCategory(request.getServerId(), request.getCategoryName(), userId);
+    public ResponseEntity<ServerDetailsResponse> createCategory(@RequestBody CreateCategoryRequest request, @RequestHeader("X-User-Id") Long userId) {
+        ServerDetailsResponse responseDto = serverService.createCategory(request.getServerId(), request.getCategoryName(), userId);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 

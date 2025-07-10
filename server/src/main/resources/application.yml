@@ -8,20 +8,7 @@ eureka:
   instance:
     prefer-ip-address: true
 
-spring:
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-  application:
-    name: SERVER-SERVICE
-  datasource:
-    url: jdbc:postgresql://ep-cool-rice-a29tbjb3-pooler.eu-central-1.aws.neon.tech/Discrowd?sslmode=require
-    username: Discrowd_owner
-    password: npg_le0t9ACZRMkK
-    driver-class-name: org.postgresql.Driver
+
 
 
 

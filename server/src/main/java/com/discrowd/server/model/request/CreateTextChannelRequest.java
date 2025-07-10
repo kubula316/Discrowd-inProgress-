@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CreateTextChannelRequest {
-    private Long serverId;
+    private String serverId;
     private String channelName;
-    private Long categoryId;
+    private String categoryId;
 }

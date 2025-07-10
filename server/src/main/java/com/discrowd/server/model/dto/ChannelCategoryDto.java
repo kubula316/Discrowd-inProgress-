@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ChannelCategoryDto {
-    private Long id;
+    private String id;
     private String name;
     private Integer position;
     private List<TextChannelDto> textChannels;

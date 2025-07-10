@@ -1,6 +1,7 @@
 package com.discrowd.server.service;
 
 import com.discrowd.server.model.dto.*;
+import com.discrowd.server.model.dto.AuthService.UserData;
 import com.discrowd.server.model.entity.Server;
 import com.discrowd.server.model.entity.TextChannel;
 import com.discrowd.server.model.entity.UserServerMembership;
@@ -10,14 +11,13 @@ import com.discrowd.server.model.response.ServerResponse;
 import com.discrowd.server.model.response.UserServerMembershipResponse;
 import com.discrowd.server.model.response.UserServerResponse;
 import com.discrowd.server.repository.*;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,71 +25,73 @@ import java.util.stream.Collectors;
 public class ServerServiceImpl implements ServerService{
 
     private final ServerRepository serverRepository;
-    private final UserServerMembershipRepository membershipRepository;
-    private final TextChannelRepository textChannelRepository;
-    private final ChannelCategoryRepository channelCategoryRepository;
-    private final VoiceChannelRepository voiceChannelRepository;
-
+    private final AuthServiceClient authServiceClient;
 
     //TODO za pomocą feigna dodać dane użytkownika do membershipa nickname/avatarUrl
 
+
+
     @Override
-    @Transactional
     public ServerResponse createServer(String name, Long ownerId) {
+        // Tworzenie głównego obiektu serwera
         Server server = Server.builder()
                 .name(name)
                 .iconUrl("https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png")
                 .ownerId(ownerId)
-                .categories(new ArrayList<>())
+                .categories(new ArrayList<>()) // Inicjalizacja list
+                .memberships(new ArrayList<>()) // Inicjalizacja list
                 .build();
-        server = serverRepository.save(server);
 
+        UserData userData = authServiceClient.getUserData(ownerId);
+
+        // Tworzenie membershipa dla właściciela
         UserServerMembership ownerMembership = UserServerMembership.builder()
+                .id(UUID.randomUUID().toString())
                 .userId(ownerId)
-                .server(server)
                 .role("OWNER")
+                // TODO: Dodaj nickname/avatarUrl z serwisu użytkownika za pomocą Feign
+                .nickname(userData.getUsername())
+                .avatarUrl(userData.getProfileImageUrl())
                 .build();
-        membershipRepository.save(ownerMembership);
+        server.addMembership(ownerMembership);
 
-        // Tworzenie 1 kat
+        // Tworzenie pierwszej kategorii (Text Channels)
         ChannelCategory defaultTextCategory = ChannelCategory.builder()
+                .id(UUID.randomUUID().toString())
                 .name("Text Channels")
-                .server(server)
                 .position(0)
                 .textChannels(new ArrayList<>())
                 .voiceChannels(new ArrayList<>())
                 .build();
         server.addCategory(defaultTextCategory);
-        defaultTextCategory = channelCategoryRepository.save(defaultTextCategory);
 
         TextChannel generalChannel = TextChannel.builder()
+                .id(UUID.randomUUID().toString())
                 .name("general")
-                .server(server)
-                .category(defaultTextCategory)
                 .position(0)
                 .build();
         defaultTextCategory.addTextChannel(generalChannel);
-        textChannelRepository.save(generalChannel);
 
-        // Tworzenie 2 kat
+        // Tworzenie drugiej kategorii (Voice Channels)
         ChannelCategory defaultVoiceCategory = ChannelCategory.builder()
+                .id(UUID.randomUUID().toString())
                 .name("Voice Channels")
-                .server(server)
                 .position(1)
                 .textChannels(new ArrayList<>())
                 .voiceChannels(new ArrayList<>())
                 .build();
         server.addCategory(defaultVoiceCategory);
-        defaultVoiceCategory = channelCategoryRepository.save(defaultVoiceCategory);
 
+        // Tworzenie kanału "General" w drugiej kategorii
         VoiceChannel generalVoiceChannel = VoiceChannel.builder()
+                .id(UUID.randomUUID().toString())
                 .name("General")
-                .server(server)
-                .category(defaultVoiceCategory)
                 .position(0)
                 .build();
         defaultVoiceCategory.addVoiceChannel(generalVoiceChannel);
-        voiceChannelRepository.save(generalVoiceChannel);
+
+        // Zapisujemy cały dokument Server. MongoDB automatycznie zapisze wszystkie osadzone listy.
+        server = serverRepository.save(server);
 
         return ServerResponse.builder()
                 .id(server.getId())
@@ -100,52 +102,69 @@ public class ServerServiceImpl implements ServerService{
     }
 
     @Override
-    @Transactional
-    public UserServerMembershipResponse joinServer(Long serverId, Long userId) {
+    public UserServerMembershipResponse joinServer(String serverId, Long userId) {
+
         Server server = serverRepository.findById(serverId)
                 .orElseThrow(() -> new RuntimeException("Server not found"));
 
-        if (membershipRepository.findByUserIdAndServerId(userId, serverId).isPresent()) {
+        boolean alreadyMember = server.getMemberships().stream()
+                .anyMatch(m -> m.getUserId().equals(userId));
+        if (alreadyMember) {
             throw new RuntimeException("User is already a member of this server");
         }
 
+        // Tworzymy nowy membership
         UserServerMembership membership = UserServerMembership.builder()
+                .id(UUID.randomUUID().toString())
                 .userId(userId)
-                .server(server)
                 .role("MEMBER")
+                // TODO: Dodaj nickname/avatarUrl z serwisu użytkownika za pomocą Feign
+                .nickname("New Member") // Placeholder
+                .avatarUrl("default_avatar_url") // Placeholder
                 .build();
 
-        membershipRepository.save(membership);
+        server.addMembership(membership);
+
+        serverRepository.save(server);
 
         return UserServerMembershipResponse.builder()
                 .membershipId(membership.getId())
                 .userId(membership.getUserId())
-                .serverId(membership.getServer().getId())
+                .serverId(server.getId())
                 .role(membership.getRole())
                 .build();
     }
 
     @Override
-    @Transactional
-    public void leaveServer(Long serverId, Long userId) {
-        Optional<UserServerMembership> membershipOpt = membershipRepository.findByUserIdAndServerId(userId, serverId);
+    public void leaveServer(String serverId, Long userId) {
+        Server server = serverRepository.findById(serverId)
+                .orElseThrow(() -> new RuntimeException("Server not found"));
+
+        // Znajdujemy membership do usunięcia
+        Optional<UserServerMembership> membershipOpt = server.getMemberships().stream()
+                .filter(m -> m.getUserId().equals(userId))
+                .findFirst();
+
         if (membershipOpt.isEmpty()) {
             throw new RuntimeException("User is not a member of this server");
         }
 
-        // Dodaj logikę, jeśli właściciel opuszcza serwer
-        // Np. transfer własności, usunięcie serwera jeśli to jedyny członek
-        // Na razie proste usunięcie członkostwa
-        membershipRepository.delete(membershipOpt.get());
+        if (server.getOwnerId().equals(userId)) {
+            serverRepository.delete(server);
+            return;
+        }
+
+        server.getMemberships().remove(membershipOpt.get());
+
+        serverRepository.save(server);
     }
 
     @Override
-    @Transactional()
     public List<UserServerResponse> getUserServers(Long userId) {
-        List<UserServerMembership> memberships = membershipRepository.findByUserId(userId);
-        return memberships.stream()
-                .map(membership -> {
-                    Server server = membership.getServer();
+        List<Server> servers = serverRepository.findByMemberships_UserId(userId);
+
+        return servers.stream()
+                .map(server -> {
                     UserServerResponse response = new UserServerResponse();
                     response.setId(server.getId());
                     response.setName(server.getName());
@@ -156,89 +175,76 @@ public class ServerServiceImpl implements ServerService{
     }
 
     @Override
-    @Transactional
-    public ServerDetailsResponse getServerDetails(Long serverId, Long userId) {
-        if (membershipRepository.findByUserIdAndServerId(userId, serverId).isPresent()) {
-            Server server = serverRepository.findById(serverId)
-                    .orElseThrow(() -> new RuntimeException("Server not found"));
+    public ServerDetailsResponse getServerDetails(String serverId, Long userId) {
 
-            Hibernate.initialize(server.getCategories());
-
-            server.getCategories().forEach(category -> {
-                Hibernate.initialize(category.getTextChannels());
-                Hibernate.initialize(category.getVoiceChannels());
-            });
-
-            return mapServerToDetailsResponse(server);
-
-        }
-        throw new RuntimeException("User is not a member of this server");
-    }
-
-    @Override
-    @Transactional
-    public TextChannelDto createTextChannel(Long serverId, String channelName, Long requestingUserId, Long categoryId) {
         Server server = serverRepository.findById(serverId)
                 .orElseThrow(() -> new RuntimeException("Server not found"));
 
-        ChannelCategory category = channelCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Channel category not found"));
+        boolean isMember = server.getMemberships().stream()
+                .anyMatch(m -> m.getUserId().equals(userId));
 
-        if (!category.getServer().getId().equals(serverId)) {
-            throw new RuntimeException("Category does not belong to this server");
+        if (!isMember) {
+            throw new RuntimeException("User is not a member of this server");
         }
 
-        // TODO: Na tym etapie pomijamy autoryzację
+        return mapServerToDetailsResponse(server);
+    }
 
-        // TODO: Ustawianie pozycji nowego kanału (możesz dodać logikę, aby był na końcu)
+    @Override
+    public ServerDetailsResponse createTextChannel(String serverId, String channelName, Long requestingUserId, String categoryId) {
+        Server server = serverRepository.findById(serverId)
+                .orElseThrow(() -> new RuntimeException("Server not found"));
+
+        ChannelCategory category = server.getCategories().stream()
+                .filter(cat -> cat.getId().equals(categoryId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Channel category not found in this server"));
+
+        // TODO: Na tym etapie pomijamy autoryzację (przenieś z właściciela serwera)
 
         Integer nextPosition = category.getTextChannels().size();
 
         TextChannel channel = TextChannel.builder()
+                .id(UUID.randomUUID().toString())
                 .name(channelName)
-                .server(server)
-                .category(category)
                 .position(nextPosition)
                 .build();
 
         category.addTextChannel(channel);
-        channel = textChannelRepository.save(channel);
 
-        return mapTextChannelToDto(channel);
+        serverRepository.save(server);
+
+        return mapServerToDetailsResponse(server);
     }
 
     @Override
-    @Transactional
-    public VoiceChannelDto createVoiceChannel(Long serverId, String channelName, Long requestingUserId, Long categoryId) {
+    public ServerDetailsResponse createVoiceChannel(String serverId, String channelName, Long requestingUserId, String categoryId) {
         Server server = serverRepository.findById(serverId)
                 .orElseThrow(() -> new RuntimeException("Server not found"));
 
-        ChannelCategory category = channelCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Channel category not found"));
-
-        if (!category.getServer().getId().equals(serverId)) {
-            throw new RuntimeException("Category does not belong to this server");
-        }
+        ChannelCategory category = server.getCategories().stream()
+                .filter(cat -> cat.getId().equals(categoryId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Channel category not found in this server"));
 
         // TODO: Autoryzacja
         Integer nextPosition = category.getVoiceChannels().size();
 
         VoiceChannel channel = VoiceChannel.builder()
+                .id(UUID.randomUUID().toString())
                 .name(channelName)
-                .server(server)
-                .category(category)
                 .position(nextPosition)
                 .build();
 
         category.addVoiceChannel(channel);
-        channel = voiceChannelRepository.save(channel);
 
-        return mapVoiceChannelToDto(channel);
+        serverRepository.save(server);
+
+        return mapServerToDetailsResponse(server);
     }
 
     @Override
-    @Transactional
-    public ChannelCategoryDto createCategory(Long serverId, String categoryName, Long requestingUserId) {
+    public ServerDetailsResponse createCategory(String serverId, String categoryName, Long requestingUserId) {
         Server server = serverRepository.findById(serverId)
                 .orElseThrow(() -> new RuntimeException("Server not found"));
 
@@ -247,21 +253,22 @@ public class ServerServiceImpl implements ServerService{
             throw new RuntimeException("User not authorized to create categories on this server");
         }
 
-        // Ustaw pozycję nowej kategorii na końcu
         Integer nextPosition = server.getCategories().size();
 
         ChannelCategory category = ChannelCategory.builder()
+                .id(UUID.randomUUID().toString())
                 .name(categoryName)
-                .server(server)
                 .position(nextPosition)
                 .textChannels(new ArrayList<>())
                 .voiceChannels(new ArrayList<>())
                 .build();
         server.addCategory(category);
-        category = channelCategoryRepository.save(category);
 
-        return mapCategoryToDto(category);
+        serverRepository.save(server);
+
+        return mapServerToDetailsResponse(server);
     }
+
 
     // --- PRYWATNE METODY MAPUJĄCE DTO ---
     private ServerDetailsResponse mapServerToDetailsResponse(Server server) {

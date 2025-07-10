@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class UserServerMembershipResponse {
-    private Long membershipId;
+    private String membershipId;
     private Long userId;
-    private Long serverId;
+    private String serverId;
     private String role;
 }

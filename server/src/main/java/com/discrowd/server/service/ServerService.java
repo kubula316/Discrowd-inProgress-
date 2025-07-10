@@ -13,12 +13,12 @@ import java.util.List;
 
 public interface ServerService {
     public ServerResponse createServer(String name, Long ownerId);
-    public UserServerMembershipResponse joinServer(Long serverId, Long userId);
-    public void leaveServer(Long serverId, Long userId);
+    public UserServerMembershipResponse joinServer(String serverId, Long userId);
+    public void leaveServer(String serverId, Long userId);
     public List<UserServerResponse> getUserServers(Long userId);
-    public ServerDetailsResponse getServerDetails(Long serverId, Long userId);
-    public TextChannelDto createTextChannel(Long serverId, String channelName, Long requestingUserId, Long categoryId);
-    public VoiceChannelDto createVoiceChannel(Long serverId, String channelName, Long requestingUserId, Long categoryId);
-    public ChannelCategoryDto createCategory(Long serverId, String categoryName, Long requestingUserId);
+    public ServerDetailsResponse getServerDetails(String serverId, Long userId);
+    public ServerDetailsResponse createTextChannel(String serverId, String channelName, Long requestingUserId, String categoryId);
+    public ServerDetailsResponse createVoiceChannel(String serverId, String channelName, Long requestingUserId, String categoryId);
+    public ServerDetailsResponse createCategory(String serverId, String categoryName, Long requestingUserId);
 
 }

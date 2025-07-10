@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class TextChannelDto {
-    private Long id;
+    private String id;
     private String name;
     private Integer position;
 

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class CreateCategoryRequest {
-    private Long serverId;
+    private String serverId;
     private String categoryName;
 }
 

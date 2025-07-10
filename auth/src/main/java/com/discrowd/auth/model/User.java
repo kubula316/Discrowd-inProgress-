@@ -39,9 +39,9 @@ public class User implements UserDetails {
 
     private String profileImageUrl = "https://coursesapp.blob.core.windows.net/student-profile-image-container/BlankProfile.png";
 
+    //w sumie nie jest potrzebne, ale może się przydać
     @Enumerated(EnumType.STRING)
     private Role role;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -58,8 +58,4 @@ public class User implements UserDetails {
         return email;
     }
 
-    public enum Status{
-        ACTIVE,
-        INACTIVE
-    }
 }

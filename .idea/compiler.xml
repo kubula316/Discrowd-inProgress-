@@ -10,7 +10,7 @@
         <module name="eureka" />
         <module name="gateway" />
       </profile>
-      <profile name="Annotation profile for websocket" enabled="true">
+      <profile name="Annotation profile for user" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -18,11 +18,14 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="server" />
+        <module name="user" />
         <module name="auth" />
-        <module name="websocket" />
         <module name="chat" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="websocket" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -31,6 +34,7 @@
       <module name="eureka" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="server" options="-parameters" />
+      <module name="user" options="-parameters" />
       <module name="websocket" options="-parameters" />
     </option>
   </component>

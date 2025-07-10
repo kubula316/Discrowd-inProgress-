@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class ServerDto {
-    private Long id;
+    private String id;
     private String name;
     private String description;
     private String iconUrl;
