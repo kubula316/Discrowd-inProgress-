@@ -35,6 +35,6 @@ public class UserServiceImpl implements UserService{
     @Override
     public UserData getUserData(Long id) {
         User user =userRepository.findById(id).orElseThrow();
-        return new UserData(user.getUsername(), user.getProfileImageUrl());
+        return new UserData(user.getNickname(), user.getProfileImageUrl());
     }
 }
