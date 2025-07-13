@@ -14,8 +14,12 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.security.Principal;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,8 +33,9 @@ public class ServerSesionController {
     @SendTo("/topic/messages/{serverId}")
     public MessageResponse sendMessage(@DestinationVariable String serverId,
                                        @RequestBody MessageRequest request,
-                                       @Header("X-User-Id") Long senderId) {
-        Message message = messageService.saveMessage(request.getContent(), senderId, request.channelId);
+                                       Principal principal) {
+        System.out.println(principal);
+        Message message = messageService.saveMessage(request.getContent(), getUserIdFromPrincipal(principal), request.channelId);
         System.out.println("Sending message: " + request.getContent() + " to channel: " + request.channelId + " in server: " + serverId);
         return new MessageResponse(message);
 
@@ -40,29 +45,43 @@ public class ServerSesionController {
     @SendTo("/topic/server/{serverId}")
     public ServerDetailsResponse addCategoryChannel(@DestinationVariable String serverId,
                                                     @RequestBody CreateCategoryRequest request,
-                                                    @Header("X-User-Id") Long senderId) {
+                                                    Principal principal) {
         System.out.println("Creating category: " + request.getCategoryName() + " in server: " + serverId);
-        return serverService.createCategory(serverId, request.getCategoryName(), senderId);
+        return serverService.createCategory(serverId, request.getCategoryName(), getUserIdFromPrincipal(principal));
     }
 
     @MessageMapping("/addTextChannel/{serverId}")
     @SendTo("/topic/server/{serverId}")
     public ServerDetailsResponse addTextChannel(@DestinationVariable String serverId,
                                                     @RequestBody CreateTextChannelRequest request,
-                                                    @Header("X-User-Id") Long senderId) {
+                                                    Principal principal) {
         System.out.println("Creating text channel: " + request.getChannelName() + " in server: " + serverId);
-        return serverService.createTextChannel(serverId, request.getChannelName(), senderId, request.getCategoryId());
+        return serverService.createTextChannel(serverId, request.getChannelName(), getUserIdFromPrincipal(principal), request.getCategoryId());
     }
 
     @MessageMapping("/addVoiceChannel/{serverId}")
     @SendTo("/topic/server/{serverId}")
     public ServerDetailsResponse addVoiceChannel(@DestinationVariable String serverId,
                                                  @RequestBody CreateVoiceChannelRequest request,
-                                                 @Header("X-User-Id") Long senderId) {
+                                                 Principal principal) {
         System.out.println("Creating text channel: " + request.getChannelName() + " in server: " + serverId);
-        return serverService.createVoiceChannel(serverId, request.getChannelName(), senderId, request.getCategoryId());
+        return serverService.createVoiceChannel(serverId, request.getChannelName(), getUserIdFromPrincipal(principal), request.getCategoryId());
     }
 
+    private Long getUserIdFromPrincipal(Principal principal) {
+        if (principal instanceof JwtAuthenticationToken) {
+            JwtAuthenticationToken jwtAuthToken = (JwtAuthenticationToken) principal;
+            Jwt jwt = jwtAuthToken.getToken();
 
+            Object idClaim = jwt.getClaim("id");
+            if (idClaim instanceof Number) {
+                return ((Number) idClaim).longValue();
+            } else {
+                System.err.println("Claim 'id' not found, is null, or is not a valid number in JWT: " + jwt.getClaims());
+                throw new IllegalStateException("User ID claim 'id' not found or invalid in JWT.");
+            }
+        }
+        throw new IllegalStateException("Authentication principal not found or is not a JwtAuthenticationToken.");
+    }
 
 }

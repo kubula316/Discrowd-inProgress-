@@ -8,6 +8,17 @@ eureka:
   instance:
     prefer-ip-address: true
 
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key-value: "673b7d63593f46596122544a31797c665026482759764d3f7e2f3c3534"
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web.socket: DEBUG
 
 
 

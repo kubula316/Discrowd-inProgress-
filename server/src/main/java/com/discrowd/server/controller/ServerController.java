@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -81,5 +82,7 @@ public class ServerController {
         ServerDetailsResponse responseDto = serverService.createCategory(request.getServerId(), request.getCategoryName(), userId);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
+
+    
 
 }

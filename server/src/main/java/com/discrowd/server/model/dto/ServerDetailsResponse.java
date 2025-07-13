@@ -16,4 +16,5 @@ public class ServerDetailsResponse {
     private String iconUrl;
     private Long ownerId;
     private List<ChannelCategoryDto> categories;
+    private List<UserServerMembershipDto> memberships;
 }

@@ -49,7 +49,6 @@ public class ServerServiceImpl implements ServerService{
                 .id(UUID.randomUUID().toString())
                 .userId(ownerId)
                 .role("OWNER")
-                // TODO: Dodaj nickname/avatarUrl z serwisu użytkownika za pomocą Feign
                 .nickname(userData.getUsername())
                 .avatarUrl(userData.getProfileImageUrl())
                 .build();
@@ -113,14 +112,15 @@ public class ServerServiceImpl implements ServerService{
             throw new RuntimeException("User is already a member of this server");
         }
 
+        UserData userData = authServiceClient.getUserData(userId);
+
         // Tworzymy nowy membership
         UserServerMembership membership = UserServerMembership.builder()
                 .id(UUID.randomUUID().toString())
                 .userId(userId)
                 .role("MEMBER")
-                // TODO: Dodaj nickname/avatarUrl z serwisu użytkownika za pomocą Feign
-                .nickname("New Member") // Placeholder
-                .avatarUrl("default_avatar_url") // Placeholder
+                .nickname(userData.getUsername()) // Placeholder
+                .avatarUrl(userData.getProfileImageUrl()) // Placeholder
                 .build();
 
         server.addMembership(membership);
@@ -284,6 +284,11 @@ public class ServerServiceImpl implements ServerService{
                 .collect(Collectors.toList());
         response.setCategories(categoryDtos);
 
+        List<UserServerMembershipDto> membershipDtos = server.getMemberships().stream()
+                .map(this::mapMembershipToDto)
+                .collect(Collectors.toList());
+        response.setMemberships(membershipDtos);
+
         return response;
     }
 
@@ -320,6 +325,16 @@ public class ServerServiceImpl implements ServerService{
                 .id(channel.getId())
                 .name(channel.getName())
                 .position(channel.getPosition())
+                .build();
+    }
+
+    private UserServerMembershipDto mapMembershipToDto(UserServerMembership membership) {
+        return UserServerMembershipDto.builder()
+                .id(membership.getId())
+                .userId(membership.getUserId())
+                .role(membership.getRole())
+                .nickname(membership.getNickname())
+                .avatarUrl(membership.getAvatarUrl())
                 .build();
     }
 
