@@ -15,17 +15,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@RequiredArgsConstructor
 public class CustomHandshakeHandler extends DefaultHandshakeHandler {
 
     private final JwtDecoder jwtDecoder;
 
-    // Pattern do wyodrębniania tokena z ciągu cookie
     private static final Pattern TOKEN_COOKIE_PATTERN = Pattern.compile("token=([^;]+)");
 
 
-    public CustomHandshakeHandler(JwtDecoder jwtDecoder) {
-        this.jwtDecoder = jwtDecoder;
-    }
 
     @Override
     protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
