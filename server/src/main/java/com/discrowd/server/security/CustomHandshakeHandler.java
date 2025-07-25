@@ -41,8 +41,18 @@ public class CustomHandshakeHandler extends DefaultHandshakeHandler {
         if (jwtString != null) {
             try {
                 Jwt jwt = jwtDecoder.decode(jwtString);
-                JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
-                return authentication;
+                String userId = jwt.getClaimAsString("id");
+                String username = jwt.getSubject();
+                if (userId == null) {
+                    System.err.println("CustomHandshakeHandler: JWT nie zawiera roszczenia 'id' lub jest ono nullem. Użycie subject jako fallback.");
+                    // Fallback: jeśli ID nie ma, użyjemy loginu/emaila. Najlepiej jednak, aby ID zawsze było w tokenie.
+                    userId = username;
+                }
+
+                CustomUserPrincipal customPrincipal = new CustomUserPrincipal(userId, username);
+                System.out.println("CustomHandshakeHandler: Uwierzytelniono użytkownika. Principal ID (prawdziwe): " + customPrincipal.getName() + ", Login (sub): " + customPrincipal.getUsername());
+
+                return customPrincipal;
 
             } catch (JwtException e) {
                 System.err.println("CustomHandshakeHandler: Błąd dekodowania JWT z Cookie: " + e.getMessage());

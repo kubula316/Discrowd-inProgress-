@@ -34,7 +34,7 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user, user.getId());
         var refreshToken = jwtService.generateRefreshToken(user, user.getId());
         return AuthenticationResponse.builder()
-                .token(jwtToken).refreshToken(refreshToken).build();
+                .token(jwtToken).refreshToken(refreshToken).userId(user.getId()).build();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -46,6 +46,7 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .refreshToken(refreshToken)
+                .userId(user.getId())
                 .build();
     }
 
@@ -62,6 +63,7 @@ public class AuthenticationService {
         return ResponseEntity.ok(AuthenticationResponse.builder()
                 .token(newJwtToken)
                 .refreshToken(newRefreshToken)
+                .userId(user.getId())
                 .build());
     }
 

@@ -69,19 +69,10 @@ public class ServerSesionController {
     }
 
     private Long getUserIdFromPrincipal(Principal principal) {
-        if (principal instanceof JwtAuthenticationToken) {
-            JwtAuthenticationToken jwtAuthToken = (JwtAuthenticationToken) principal;
-            Jwt jwt = jwtAuthToken.getToken();
-
-            Object idClaim = jwt.getClaim("id");
-            if (idClaim instanceof Number) {
-                return ((Number) idClaim).longValue();
-            } else {
-                System.err.println("Claim 'id' not found, is null, or is not a valid number in JWT: " + jwt.getClaims());
-                throw new IllegalStateException("User ID claim 'id' not found or invalid in JWT.");
-            }
+        if (principal == null) {
+            throw new IllegalArgumentException("Principal cannot be null.");
         }
-        throw new IllegalStateException("Authentication principal not found or is not a JwtAuthenticationToken.");
+        return Long.parseLong(principal.getName());
     }
 
 }
