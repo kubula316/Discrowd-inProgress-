@@ -17,11 +17,21 @@ public class UploadServiceImpl implements UploadService{
     private final ImageStorageClient imageStorageClient;
 
     private static final String MESSAGE_CONTAINER_NAME = "message-image-container";
+    private static final String PROFILE_CONTAINER_NAME = "profile-image-container";
 
     @Override
     public String UploadMessageImage(MultipartFile file) {
         try {
             return uploadImage(MESSAGE_CONTAINER_NAME, file);
+        }catch (IOException e){
+            throw new UploadException(UploadError.FAILED_TO_UPLOAD_IMAGE);
+        }
+    }
+
+    @Override
+    public String uploadProfileImage(MultipartFile file) {
+        try {
+            return uploadImage(PROFILE_CONTAINER_NAME, file);
         }catch (IOException e){
             throw new UploadException(UploadError.FAILED_TO_UPLOAD_IMAGE);
         }

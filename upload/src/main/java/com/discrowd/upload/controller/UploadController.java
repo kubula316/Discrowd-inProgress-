@@ -19,4 +19,10 @@ public class UploadController {
     public String updateImage(@RequestParam MultipartFile file) {
         return uploadService.UploadMessageImage(file);
     }
+
+    @PostMapping("/profile-image")
+    @ResponseStatus(HttpStatus.CREATED)
+    public String updateProfileImage(@RequestParam MultipartFile file) {
+        return uploadService.uploadProfileImage(file);
+    }
 }

@@ -18,9 +18,9 @@ spring:
   application:
     name: AUTH-SERVICE
   datasource:
-    url: jdbc:postgresql://ep-cool-rice-a29tbjb3-pooler.eu-central-1.aws.neon.tech/Discrowd?sslmode=require
-    username: Discrowd_owner
-    password: npg_le0t9ACZRMkK
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
 logging:

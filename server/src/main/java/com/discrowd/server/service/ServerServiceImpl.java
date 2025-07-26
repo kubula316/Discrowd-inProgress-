@@ -269,6 +269,20 @@ public class ServerServiceImpl implements ServerService{
         return mapServerToDetailsResponse(server);
     }
 
+    @Override
+    public void updateMembershipProfileImage(Long userId, String imageUrl) {
+        List<Server> servers = serverRepository.findByMemberships_UserId(userId);
+
+        for (Server server : servers) {
+            for (UserServerMembership membership : server.getMemberships()) {
+                if (membership.getUserId().equals(userId)) {
+                    membership.setAvatarUrl(imageUrl);
+                }
+            }
+            serverRepository.save(server);
+        }
+    }
+
 
     // --- PRYWATNE METODY MAPUJĄCE DTO ---
     private ServerDetailsResponse mapServerToDetailsResponse(Server server) {

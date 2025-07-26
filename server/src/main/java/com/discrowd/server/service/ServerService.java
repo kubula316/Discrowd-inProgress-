@@ -21,4 +21,5 @@ public interface ServerService {
     public ServerDetailsResponse createVoiceChannel(String serverId, String channelName, Long requestingUserId, String categoryId);
     public ServerDetailsResponse createCategory(String serverId, String categoryName, Long requestingUserId);
 
+    void updateMembershipProfileImage(Long userId, String imageUrl);
 }

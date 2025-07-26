@@ -82,6 +82,11 @@ public class ServerController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
+    @PostMapping("/update/MembershipProfileImage")
+    public void updateMembershipProfileImage(@RequestParam Long userId, @RequestParam String imageUrl) {
+        serverService.updateMembershipProfileImage(userId, imageUrl);
+    }
+
     
 
 }

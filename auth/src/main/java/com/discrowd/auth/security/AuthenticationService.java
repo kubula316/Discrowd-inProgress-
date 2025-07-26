@@ -28,7 +28,7 @@ public class AuthenticationService {
                 .nickname(request.getNickname())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
-                .profileImageUrl("https://coursesapp.blob.core.windows.net/student-profile-image-container/BlankProfile.png")
+                .profileImageUrl("https://discrowd.blob.core.windows.net/message-image-container/6633d5b8-10f8-4e03-b8f0-8cc2e92bc3db.png")
                 .build();
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user, user.getId());
