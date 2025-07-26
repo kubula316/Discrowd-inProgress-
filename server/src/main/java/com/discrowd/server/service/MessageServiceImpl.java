@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -17,24 +18,26 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
 
     @Override
-    public Message saveMessage(String content, Long senderId, String channelId) {
+    public Message saveMessage(String content, Long senderId, String channelId, String imageUrl) {
         // Tutaj można dodać walidację, np. sprawdzenie, czy channelId faktycznie istnieje
-        // (poprzez wywołanie Feign do Guild Service, jeśli masz już to skonfigurowane).
-        // Na razie zakładamy, że channelId jest poprawne.
-        Message message = new Message(content, senderId, channelId);
+        Message message = new Message(content, senderId, channelId, imageUrl);
         return messageRepository.save(message);
     }
 
     @Override
     public List<Message> getLatestMessages(String channelId, int limit) {
         PageRequest pageRequest = PageRequest.of(0, limit); // Pobierz pierwszą stronę o danym limicie
-        return messageRepository.findByChannelIdOrderByTimestampAsc(channelId, pageRequest);
+        List<Message> messages = messageRepository.findByChannelIdOrderByTimestampDesc(channelId, pageRequest);
+        Collections.reverse(messages);
+        return messages;
     }
 
     @Override
     public List<Message> getMessagesBefore(String channelId, LocalDateTime beforeTimestamp, int limit) {
         PageRequest pageRequest = PageRequest.of(0, limit);
-        return messageRepository.findByChannelIdAndTimestampBeforeOrderByTimestampDesc(channelId, beforeTimestamp, pageRequest);
+        List<Message> messages = messageRepository.findByChannelIdAndTimestampBeforeOrderByTimestampDesc(channelId, beforeTimestamp, pageRequest);
+        Collections.reverse(messages);
+        return messages;
     }
 
 }

@@ -27,14 +27,17 @@ public class Message {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
 
+    private String imageUrl;
+
     public Message() {
         this.timestamp = LocalDateTime.now();
     }
 
-    public Message(String content, Long senderId, String channelId) {
+    public Message(String content, Long senderId, String channelId, String imageUrl) {
         this();
         this.content = content;
         this.senderId = senderId;
         this.channelId = channelId;
+        this.imageUrl = imageUrl;
     }
 }

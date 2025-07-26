@@ -12,6 +12,7 @@ public class MessageResponse {
     public Long senderId;
     public String channelId;
     public LocalDateTime timestamp;
+    public String imageUrl;
 
     public MessageResponse(Message message) {
         this.id = message.getId();
@@ -19,5 +20,6 @@ public class MessageResponse {
         this.senderId = message.getSenderId();
         this.channelId = message.getChannelId();
         this.timestamp = message.getTimestamp();
+        this.imageUrl = message.getImageUrl();
     }
 }

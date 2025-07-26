@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MessageService {
-    public Message saveMessage(String content, Long senderId, String channelId);
+    public Message saveMessage(String content, Long senderId, String channelId, String imageUrl);
     public List<Message> getLatestMessages(String channelId, int limit);
     public List<Message> getMessagesBefore(String channelId, LocalDateTime beforeTimestamp, int limit);
 }

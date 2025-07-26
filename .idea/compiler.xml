@@ -18,12 +18,13 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
         <module name="server" />
-        <module name="user" />
+        <module name="upload" />
         <module name="auth" />
-        <module name="chat" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="chat" target="17" />
+      <module name="user" target="17" />
       <module name="websocket" target="17" />
     </bytecodeTargetLevel>
   </component>
@@ -34,6 +35,7 @@
       <module name="eureka" options="-parameters" />
       <module name="gateway" options="-parameters" />
       <module name="server" options="-parameters" />
+      <module name="upload" options="-parameters" />
       <module name="user" options="-parameters" />
       <module name="websocket" options="-parameters" />
     </option>
